@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+@media print {
+  /* 印刷時に余計な余白を取り除く */
+  body {
+    background-color: white !important;
+    color: black !important;
+  }
+  
+  /* 中央の座席表エリアを画面いっぱいに広げる */
+  .print-area {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* 印刷時に枠線やテキストがはっきり見えるようにする */
+  .seat-border {
+    border-color: #94a3b8 !important; /* border-slate-400 */
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}
