@@ -1157,15 +1157,15 @@ const App: React.FC = () => {
           </div>
         )}
 
-        <div className="flex-1 p-8 flex flex-col items-center">
+        <div className="flex-1 p-8 print:p-2 flex flex-col items-center">
           {/* 黒板エリア */}
-          <div className="w-3/4 max-w-2xl h-12 print:h-10 bg-green-700 rounded-lg shadow-inner flex items-center justify-center mb-8 print:mb-3 border-4 border-green-800 print:bg-green-800">
-            <span className="text-white font-bold tracking-widest opacity-80 print:text-xs">黒板</span>
+          <div className="w-3/4 max-w-2xl h-12 print:h-12 bg-green-700 rounded-lg shadow-inner flex items-center justify-center mb-8 print:mb-5 border-4 border-green-800 print:bg-green-800">
+            <span className="text-white font-bold tracking-widest opacity-80 print:text-sm">黒板</span>
           </div>
 
           {/* 教卓 */}
-          <div className="w-32 h-16 print:h-10 bg-amber-100 border-2 border-amber-300 rounded mb-12 print:mb-4 flex items-center justify-center shadow-sm print:bg-amber-50">
-            <span className="text-amber-700 font-medium text-sm print:text-xs">教卓</span>
+          <div className="w-32 h-16 print:h-12 bg-amber-100 border-2 border-amber-300 rounded mb-12 print:mb-8 flex items-center justify-center shadow-sm print:bg-amber-50">
+            <span className="text-amber-700 font-medium text-sm print:text-sm">教卓</span>
           </div>
 
           {/* 座席グリッド */}
@@ -1244,7 +1244,7 @@ const App: React.FC = () => {
                   onDragOver={handleDragOver}
                   onDrop={() => handleDropToSeat(index)}
                   className={`
-                    relative h-24 print:h-[7.2rem] rounded-xl border-2 flex flex-col items-center transition-all duration-200 seat-border
+                    relative h-24 print:h-[8.0rem] rounded-xl border-2 flex flex-col items-center transition-all duration-200 seat-border
                     ${seat.isVoid 
                       ? 'bg-transparent border-dashed border-slate-300 opacity-50 print:border-none print:opacity-0 justify-center' 
                       : 'bg-white shadow-sm hover:shadow-md border-slate-200 justify-between py-1 px-1.5'}

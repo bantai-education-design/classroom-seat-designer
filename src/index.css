@@ -20,6 +20,12 @@
     margin: 0 !important;
   }
 
+  /* 座席グリッドの最大幅制限を解除してA4横幅いっぱいに広げる */
+  .print-area .grid {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
   /* 印刷時に枠線やテキストがはっきり見えるようにする */
   .seat-border {
     border-color: #94a3b8 !important; /* border-slate-400 */
