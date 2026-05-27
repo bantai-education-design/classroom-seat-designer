@@ -221,6 +221,7 @@ const App: React.FC = () => {
   const [nameDisplayMode, setNameDisplayMode] = useState<'kanji' | 'kana'>('kanji');
   const [gradeName, setGradeName] = useState('');
   const [className, setClassName] = useState('');
+  const [nameSizeMode, setNameSizeMode] = useState<'normal' | 'large' | 'lower'>('normal');
 
   // ペアモードの判定を関数化
   const isPairModeActive = () => {
@@ -837,7 +838,8 @@ const App: React.FC = () => {
       pairGenderMixed,
       nameDisplayMode,
       gradeName,
-      className
+      className,
+      nameSizeMode
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -901,6 +903,7 @@ const App: React.FC = () => {
           }
           setGradeName(normalizedGrade);
           setClassName(data.className !== undefined ? data.className : '');
+          setNameSizeMode(data.nameSizeMode !== undefined ? data.nameSizeMode : 'normal');
         }
       } catch (error) {
         console.error("ファイルの読み込みに失敗しました", error);
@@ -936,20 +939,56 @@ const App: React.FC = () => {
     
     let sizeClass = '';
     if (isDisplayMode) {
-      if (charCount >= 10) {
-        sizeClass = "text-xl sm:text-2xl print:text-[1.85rem] print:leading-tight";
-      } else if (charCount >= 7) {
-        sizeClass = "text-2xl sm:text-3xl print:text-[2.3rem] print:leading-tight";
+      if (nameSizeMode === 'lower') {
+        if (charCount >= 10) {
+          sizeClass = "text-2xl print:text-[2.1rem] print:leading-tight";
+        } else if (charCount >= 7) {
+          sizeClass = "text-3xl print:text-[2.6rem] print:leading-tight";
+        } else {
+          sizeClass = "text-3xl print:text-[3.3rem] print:leading-none";
+        }
+      } else if (nameSizeMode === 'large') {
+        if (charCount >= 10) {
+          sizeClass = "text-xl sm:text-2xl print:text-[2.0rem] print:leading-tight";
+        } else if (charCount >= 7) {
+          sizeClass = "text-2xl sm:text-3xl print:text-[2.45rem] print:leading-tight";
+        } else {
+          sizeClass = "text-2xl sm:text-3xl print:text-[3.1rem] print:leading-none";
+        }
       } else {
-        sizeClass = "text-2xl sm:text-3xl print:text-[2.9rem] print:leading-none";
+        if (charCount >= 10) {
+          sizeClass = "text-xl sm:text-2xl print:text-[1.85rem] print:leading-tight";
+        } else if (charCount >= 7) {
+          sizeClass = "text-2xl sm:text-3xl print:text-[2.3rem] print:leading-tight";
+        } else {
+          sizeClass = "text-2xl sm:text-3xl print:text-[2.9rem] print:leading-none";
+        }
       }
     } else {
-      if (charCount >= 10) {
-        sizeClass = "text-base sm:text-lg print:text-[14px] print:leading-tight";
-      } else if (charCount >= 7) {
-        sizeClass = "text-lg sm:text-xl print:text-[16.5px] print:leading-tight";
+      if (nameSizeMode === 'lower') {
+        if (charCount >= 10) {
+          sizeClass = "text-lg print:text-[16px] print:leading-tight";
+        } else if (charCount >= 7) {
+          sizeClass = "text-xl print:text-[18.5px] print:leading-tight";
+        } else {
+          sizeClass = "text-xl print:text-[21px] print:leading-tight";
+        }
+      } else if (nameSizeMode === 'large') {
+        if (charCount >= 10) {
+          sizeClass = "text-base sm:text-lg print:text-[15px] print:leading-tight";
+        } else if (charCount >= 7) {
+          sizeClass = "text-lg sm:text-xl print:text-[17.5px] print:leading-tight";
+        } else {
+          sizeClass = "text-lg sm:text-xl print:text-[20px] print:leading-tight";
+        }
       } else {
-        sizeClass = "text-lg sm:text-xl print:text-[19px] print:leading-tight";
+        if (charCount >= 10) {
+          sizeClass = "text-base sm:text-lg print:text-[14px] print:leading-tight";
+        } else if (charCount >= 7) {
+          sizeClass = "text-lg sm:text-xl print:text-[16.5px] print:leading-tight";
+        } else {
+          sizeClass = "text-lg sm:text-xl print:text-[19px] print:leading-tight";
+        }
       }
     }
       
@@ -1539,6 +1578,42 @@ const App: React.FC = () => {
                      className="text-blue-600 focus:ring-blue-500"
                    />
                    <span>ひらがな</span>
+                </label>
+             </div>
+             <div className="flex flex-col gap-2 text-sm text-slate-600 mb-3">
+                <span className="text-slate-700 font-medium">名前サイズ</span>
+                <label className="flex items-center gap-2 cursor-pointer">
+                   <input 
+                     type="radio" 
+                     name="nameSizeMode" 
+                     value="normal" 
+                     checked={nameSizeMode === 'normal'} 
+                     onChange={() => setNameSizeMode('normal')}
+                     className="text-blue-600 focus:ring-blue-500"
+                   />
+                   <span>標準</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                   <input 
+                     type="radio" 
+                     name="nameSizeMode" 
+                     value="large" 
+                     checked={nameSizeMode === 'large'} 
+                     onChange={() => setNameSizeMode('large')}
+                     className="text-blue-600 focus:ring-blue-500"
+                   />
+                   <span>大きめ</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                   <input 
+                     type="radio" 
+                     name="nameSizeMode" 
+                     value="lower" 
+                     checked={nameSizeMode === 'lower'} 
+                     onChange={() => setNameSizeMode('lower')}
+                     className="text-blue-600 focus:ring-blue-500"
+                   />
+                   <span>低学年向け</span>
                 </label>
              </div>
              <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
