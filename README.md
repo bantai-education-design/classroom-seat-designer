@@ -1,73 +1,51 @@
-# React + TypeScript + Vite
+# 学級座席デザイナー
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+小学校の担任の先生が、児童名簿から素早く座席表を作成・調整できるWebアプリケーションです。  
+現在、GitHub Pagesで公開しています。
 
-Currently, two official plugins are available:
+### 🚀 公開URL
+**[https://bantai-education-design.github.io/classroom-seat-designer/](https://bantai-education-design.github.io/classroom-seat-designer/)**
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## 💡 特徴・主な機能
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 1. 多彩な座席形態に対応
+* **1人席**（通常の並び）
+* **2人組席**（ペア学習や隣同士の活動用。ペアごとに結合された枠線やペア番号のラベルを表示）
+* **班席**（2×2の4人グループ用。班ごとの外枠、境界線の点線化、班番号のラベルを表示）
 
-## Expanding the ESLint configuration
+### 2. 印刷形式の切り替え
+* **教師用チェック記入型**: 各児童セルに出席番号、チェック欄、性別、身長などを表示し、配慮確認セクションも出力可能。
+* **掲示用きれい版**: 教室掲示用に児童名のみ（班席モードでは班番号も）を大きく表示する、シンプルで美しいレイアウト。
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 3. スマートな自動配置と配慮条件の反映
+* **自動配置アルゴリズム**: ランダム配置、身長順（低い子を前方・中央へ）配置、男女交互配置に対応。
+* **固定席指定**: 指定した座席位置に児童を固定でき、自動配置時も最優先されて動きません。
+* **配慮条件の設定とリアルタイムチェック**:
+  * **前方希望**: 設定された児童を自動配置時に極力前方に配置。
+  * **近づけたい子・離したい子**: 児童間の近接条件をチェックし、問題がある場合は教師用画面に注意・確認メッセージを表示（2人組席や班席の同一グループ内近接も考慮）。
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### 4. 便利なデータ管理
+* **CSVデータ連携**: 出席番号、氏名、ふりがな、性別、身長のCSVインポート・エクスポートに対応。
+* **JSON保存・読込**: 配座データ、配慮条件、座席設定を含めた全設定をJSONファイルでローカルに保存・読み込み可能。
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 🛠️ 技術スタック
+* **Frontend**: React, TypeScript, TailwindCSS
+* **Build Tool**: Vite
+* **CI/CD**: GitHub Actions (GitHub Pages への自動デプロイ)
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 📦 開発・起動手順
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```bash
+# 依存パッケージのインストール
+npm install
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# 開発用サーバーの起動
+npm run dev
+
+# プロダクションビルド
+npm run build
 ```
