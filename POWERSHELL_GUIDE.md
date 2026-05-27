@@ -15,8 +15,8 @@
 6. [GitHub Pagesの公開反映を確認する流れ](#6-github-pagesの公開反映を確認する流れ)
 7. [.gitignoreの確認（不要なファイルを送信しない設定）](#7-gitignoreの確認不要なファイルを送信しない設定)
 8. [誤って不要なファイルがGitの管理に入ってしまった場合の対処法](#8-誤って不要なファイルがgitの管理に入ってしまった場合の対処法)
-9. [将来ElectronでWindowsアプリ（.exe）化する前の動作確認](#9-将来electronでwindowsアプリexe化する前の動作確認)
-10. [【重要】将来の.exe化におけるパス（base）の注意点](#10-重要将来のexe化におけるパスbaseの注意点)
+9. [Electronでのデスクトップアプリ起動とWindows用ポータブルexeの作成手順](#9-electronでのデスクトップアプリ起動とwindows用ポータブルexeの作成手順)
+10. [Web版（GitHub Pages）と Electron（Windowsアプリ版）のパス（base）自動切替について](#10-web版github-pagesと-electronwindowsアプリ版のパスbase自動切替について)
 
 ---
 
@@ -104,29 +104,45 @@ git rm -r --cached dist
 git rm -r --cached node_modules
 ```
 
-## 9. 将来ElectronでWindowsアプリ（.exe）化する前の動作確認
-将来的に、学校のオフライン環境でもインストールして動かせる Windows専用アプリ（.exe）を作るための準備確認コマンドです。
+## 9. Electronでのデスクトップアプリ起動とWindows用ポータブルexeの作成手順
+
+Windows用のポータブル実行ファイル（exe）を作成したり、デスクトップアプリ版の動作を確認するコマンドです。
+
 ```powershell
-# 1. パソコンのNode.jsおよびnpmが動作しているかバージョンを確認
-node -v
-npm -v
+# 1. デスクトップアプリのローカル開発用起動（ホットリロード対応）
+npm run electron:dev
 
-# 2. ローカルの開発用サーバーを立ち上げて、パソコン上で正常に動くか確認
-npm run dev
+# 2. Windows用ポータブルexeのパッケージ作成 (ビルド)
+# 実行すると、Web用のビルドを行ったのち、Electron用のパッケージングが実行されます。
+npm run electron:pack
 
-# 3. 静的なビルド成果物ファイルが dist フォルダに正しく書き出されるか確認
-npm run build
+# 3. 作成されたexeファイルなどの確認
+Get-ChildItem -Path release
+
+# 4. 作成されたポータブル版アプリをPowerShellから直接起動してテストする
+.\release\学級座席デザイナー_0.0.0.exe
 ```
 
-## 10. 【重要】将来の.exe化におけるパス（base）の注意点
-Web公開版（GitHub Pages）と、将来のWindowsアプリ版（Electron）では、プログラム内のアセット（画像やスクリプト）を読み込むための基準ルートパス（`base`）の設定が異なります。
+> [!WARNING]
+> **【超重要】release/ フォルダは絶対に GitHub にプッシュしないでください**
+> ビルドによって自動生成される `release/` フォルダはファイルサイズが非常に大きく、また環境依存のバイナリが含まれます。そのため、`.gitignore` ファイルによって自動的にGitの管理対象外に設定されています。
+> 誤って `release/` や生成された `.exe` ファイルを `git add` などでコミット・プッシュしないよう厳重に注意してください。
+
+## 10. Web版（GitHub Pages）と Electron（Windowsアプリ版）のパス（base）自動切替について
+
+Web公開版（GitHub Pages）と、Windowsアプリ版（Electron）では、プログラム内のアセット（画像やスクリプト）を読み込むための基準ルートパス（`base`）の設定が異なります。
 
 * **GitHub Pages（Web公開版）**: `/classroom-seat-designer/` （リポジトリ名）
 * **Electron（Windowsアプリ版）**: `./` （相対パス）
 
-> [!WARNING]
-> **単純な固定値の書き換えはNGです**
-> `vite.config.ts` ファイル内の `base` 設定を単純に固定の `"./"` に書き換えてGitHubに送信すると、**Web公開版（GitHub Pages）の表示が真っ白になり壊れてしまいます**。
-> 将来的に.exe化を進める際は、ビルド時の環境変数（例：`process.env.BUILD_TARGET === 'electron'` など）を用いて、自動で出力パスが切り替わるような「両立設計」にする必要があります。
+本プロジェクトでは、`vite.config.ts` において環境変数 `BUILD_TARGET` を参照し、以下のように自動で切り替える両立設計を行っています。
+
+```typescript
+const isElectron = process.env.BUILD_TARGET === 'electron';
+// ...
+base: isElectron ? './' : '/classroom-seat-designer/',
+```
+
+これにより、同一のソースコードからWeb公開版とWindowsアプリ版の両方を同時に維持・動作させることができます。
 
 ---

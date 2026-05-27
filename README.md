@@ -58,8 +58,10 @@
 * **Build Tool**: Vite
 * **CI/CD**: GitHub Actions (GitHub Pages への自動デプロイ)
 
-## 📅 今後の予定
-* 担任の先生がオフラインでもより手軽に使用できるよう、**Windows専用アプリ（.exe化）**の開発・提供を予定しています。
+## 📅 今後の予定（Windows専用アプリ版）
+* 学校のオフライン環境下でも動作する **Windows専用デスクトップアプリ版（ポータブル版 .exe）**のパッケージ化環境が整いました。
+* 現在はWeb版をメイン公開しており、パッケージ化した `.exe` ファイルは今後 GitHub Releases 等を通じて配布を予定しています。
+* 現時点では、開発環境にてローカルビルド（`npm run electron:pack`）を実行することで、自主生成してデスクトップで利用できます。
 
 ## 📦 開発・起動手順
 
@@ -67,9 +69,16 @@
 # 依存パッケージのインストール
 npm install
 
-# 開発用サーバーの起動
+# 開発用サーバーの起動 (Web版)
 npm run dev
 
-# プロダクションビルド
+# プロダクションビルド (Web版)
 npm run build
+
+# デスクトップアプリのローカル起動 (Electron開発用)
+npm run electron:dev
+
+# Windows用ポータブルexeのパッケージ作成 (ビルド)
+# (※実行後、release/ フォルダ以下に 学級座席デザイナー_0.0.0.exe が生成されます)
+npm run electron:pack
 ```
