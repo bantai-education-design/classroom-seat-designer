@@ -892,7 +892,14 @@ const App: React.FC = () => {
           setPairAvoidNear(data.pairAvoidNear !== undefined ? data.pairAvoidNear : false);
           setPairGenderMixed(data.pairGenderMixed !== undefined ? data.pairGenderMixed : false);
           setNameDisplayMode(data.nameDisplayMode !== undefined ? data.nameDisplayMode : 'kanji');
-          setGradeName(data.gradeName !== undefined ? data.gradeName : '');
+          let rawGrade = data.gradeName !== undefined ? String(data.gradeName).trim() : '';
+          let normalizedGrade = '';
+          const match = rawGrade.match(/^([1-6１-６])年?$/);
+          if (match) {
+            const num = match[1].replace(/[１-６]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
+            normalizedGrade = `${num}年`;
+          }
+          setGradeName(normalizedGrade);
           setClassName(data.className !== undefined ? data.className : '');
         }
       } catch (error) {
@@ -1409,13 +1416,19 @@ const App: React.FC = () => {
              <div className="grid grid-cols-2 gap-2 text-sm">
                <div>
                  <label className="block text-xs text-slate-500 mb-1">学年</label>
-                 <input
-                   type="text"
+                 <select
                    value={gradeName}
                    onChange={(e) => setGradeName(e.target.value)}
-                   placeholder="例: 1年"
                    className="w-full p-2 rounded-lg border border-slate-200 focus:ring-1 focus:ring-blue-500 text-slate-700 bg-white"
-                 />
+                 >
+                   <option value="">未設定</option>
+                   <option value="1年">1年</option>
+                   <option value="2年">2年</option>
+                   <option value="3年">3年</option>
+                   <option value="4年">4年</option>
+                   <option value="5年">5年</option>
+                   <option value="6年">6年</option>
+                 </select>
                </div>
                <div>
                  <label className="block text-xs text-slate-500 mb-1">学級名</label>
