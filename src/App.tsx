@@ -174,6 +174,34 @@ const isSameGroup = (idxA: number, idxB: number, c: number): boolean => {
   return groupRowA === groupRowB && groupColA === groupColB;
 };
 
+const formatClassTitle = (grade: string, className: string): string => {
+  const g = grade.trim();
+  const c = className.trim();
+  
+  if (!g && !c) {
+    return '座席表';
+  }
+  
+  let formattedGrade = g;
+  if (g) {
+    if (/^[0-9０-９]+$/.test(g)) {
+      formattedGrade = `${g}年`;
+    }
+  }
+  
+  let formattedClass = c;
+  if (c) {
+    const isNumeric = /^[0-9０-９]+$/.test(c);
+    const isAlpha = /^[a-zA-Zａ-ｚＡ-Ｚ]+$/.test(c);
+    const hasSuffix = c.endsWith('組') || c.endsWith('クラス');
+    if ((isNumeric || isAlpha) && !hasSuffix) {
+      formattedClass = `${c}組`;
+    }
+  }
+  
+  return `${formattedGrade}${formattedClass} 座席表`;
+};
+
 const App: React.FC = () => {
   // --- 状態管理 ---
   const [students, setStudents] = useState<Student[]>([]);
@@ -897,11 +925,26 @@ const App: React.FC = () => {
       : student.name;
       
     const parts = displayName.trim().split(/[\s　]+/);
+    const charCount = displayName.replace(/[\s　]+/g, '').length;
     
-    // 掲示用は大きめ、教師用は標準サイズ
-    const sizeClass = isDisplayMode 
-      ? "text-2xl sm:text-3xl print:text-4xl" 
-      : "text-lg sm:text-xl print:text-base print:leading-tight"; // 教師用も大きくし、印刷時も十分な可読性を確保
+    let sizeClass = '';
+    if (isDisplayMode) {
+      if (charCount >= 10) {
+        sizeClass = "text-xl sm:text-2xl print:text-[1.65rem] print:leading-tight";
+      } else if (charCount >= 7) {
+        sizeClass = "text-2xl sm:text-3xl print:text-[2rem] print:leading-tight";
+      } else {
+        sizeClass = "text-2xl sm:text-3xl print:text-[2.5rem] print:leading-none";
+      }
+    } else {
+      if (charCount >= 10) {
+        sizeClass = "text-base sm:text-lg print:text-[13px] print:leading-tight";
+      } else if (charCount >= 7) {
+        sizeClass = "text-lg sm:text-xl print:text-[15px] print:leading-tight";
+      } else {
+        sizeClass = "text-lg sm:text-xl print:text-[17px] print:leading-tight";
+      }
+    }
       
     const colorClass = isDisplayMode ? "text-slate-900" : "text-slate-700";
 
@@ -1074,7 +1117,7 @@ const App: React.FC = () => {
              )}
              <div>
                <h1 className="text-2xl font-bold text-slate-700">
-                 {gradeName || className ? `${gradeName}${className} 座席表` : '学級座席デザイナー v0.2'}
+                 {gradeName || className ? formatClassTitle(gradeName, className) : '学級座席デザイナー v0.2'}
                </h1>
                <p className="text-xs text-slate-500 mt-0.5 print:hidden">
                  {gradeName || className ? '学級座席デザイナー v0.2' : '担任の判断を助ける、半自動の座席表作成ツール'}
@@ -1109,18 +1152,24 @@ const App: React.FC = () => {
 
         <div className="flex-1 p-8 flex flex-col items-center">
           {/* 黒板エリア */}
-          <div className="w-3/4 max-w-2xl h-12 bg-green-700 rounded-lg shadow-inner flex items-center justify-center mb-8 border-4 border-green-800 print:bg-green-800">
-            <span className="text-white font-bold tracking-widest opacity-80">黒板</span>
+          <div className="w-3/4 max-w-2xl h-12 print:h-10 bg-green-700 rounded-lg shadow-inner flex items-center justify-center mb-8 print:mb-4 border-4 border-green-800 print:bg-green-800">
+            <span className="text-white font-bold tracking-widest opacity-80 print:text-xs">黒板</span>
           </div>
 
           {/* 教卓 */}
-          <div className="w-32 h-16 bg-amber-100 border-2 border-amber-300 rounded mb-12 flex items-center justify-center shadow-sm print:bg-amber-50">
-            <span className="text-amber-700 font-medium text-sm">教卓</span>
+          <div className="w-32 h-16 print:h-10 bg-amber-100 border-2 border-amber-300 rounded mb-12 print:mb-6 flex items-center justify-center shadow-sm print:bg-amber-50">
+            <span className="text-amber-700 font-medium text-sm print:text-xs">教卓</span>
           </div>
 
           {/* 座席グリッド */}
           <div 
-            className={`grid ${seatMode === 'single' ? 'gap-y-4 gap-x-4' : seatMode === 'pair' ? 'gap-y-4 gap-x-1' : 'gap-y-1 gap-x-1'}`}
+            className={`grid ${
+              seatMode === 'single' 
+                ? 'gap-y-4 gap-x-4 print:gap-y-3 print:gap-x-3' 
+                : seatMode === 'pair' 
+                  ? 'gap-y-4 gap-x-1 print:gap-y-3 print:gap-x-1' 
+                  : 'gap-y-1 gap-x-1 print:gap-y-1 print:gap-x-1'
+            }`}
             style={{ 
               gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
               width: '100%',
@@ -1156,7 +1205,7 @@ const App: React.FC = () => {
               let pairStyleClass = '';
 
               if (isPairMode) {
-                marginClass = (isRightOfPair && col < cols - 1) ? 'mr-5' : '';
+                marginClass = (isRightOfPair && col < cols - 1) ? 'mr-5 print:mr-3' : '';
                 if (!seat.isVoid) {
                   if (isLeftOfPair) {
                     pairStyleClass = 'rounded-r-none border-r border-dashed border-slate-200';
@@ -1165,8 +1214,8 @@ const App: React.FC = () => {
                   }
                 }
               } else if (isGroupMode) {
-                const mrClass = (colInGroup === 1 && col < cols - 1) ? 'mr-5' : '';
-                const mbClass = (rowInGroup === 1 && row < rows - 1) ? 'mb-5' : '';
+                const mrClass = (colInGroup === 1 && col < cols - 1) ? 'mr-5 print:mr-3' : '';
+                const mbClass = (rowInGroup === 1 && row < rows - 1) ? 'mb-5 print:mb-3' : '';
                 marginClass = `${mrClass} ${mbClass}`.trim();
 
                 if (!seat.isVoid) {
@@ -1188,7 +1237,7 @@ const App: React.FC = () => {
                   onDragOver={handleDragOver}
                   onDrop={() => handleDropToSeat(index)}
                   className={`
-                    relative h-24 print:h-[5.75rem] rounded-xl border-2 flex flex-col items-center transition-all duration-200 seat-border
+                    relative h-24 print:h-[6.5rem] rounded-xl border-2 flex flex-col items-center transition-all duration-200 seat-border
                     ${seat.isVoid 
                       ? 'bg-transparent border-dashed border-slate-300 opacity-50 print:border-none print:opacity-0 justify-center' 
                       : 'bg-white shadow-sm hover:shadow-md border-slate-200 justify-between py-1 px-1.5'}
