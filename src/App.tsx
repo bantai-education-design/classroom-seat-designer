@@ -843,6 +843,36 @@ const App: React.FC = () => {
     return seats.some(s => s.studentId === studentId);
   };
 
+  const renderStudentName = (name: string, isDisplayMode: boolean) => {
+    const parts = name.trim().split(/[\s　]+/);
+    
+    // 掲示用は大きめ、教師用は標準サイズ
+    const sizeClass = isDisplayMode 
+      ? "text-xl sm:text-2xl print:text-2xl" 
+      : "text-base sm:text-lg print:text-[13px] print:leading-none"; // 印刷時は少し小さくして1ページ収まりを良くする
+      
+    const colorClass = isDisplayMode ? "text-slate-800" : "text-slate-700";
+
+    // 姓と名がスペースで区切られている場合
+    if (parts.length >= 2) {
+      const familyName = parts[0];
+      const givenName = parts.slice(1).join(' ');
+      return (
+        <div className={`flex flex-col items-center justify-center text-center leading-tight ${colorClass} w-full overflow-hidden print:overflow-visible`}>
+          <span className={`${sizeClass} font-bold truncate print:whitespace-normal print:overflow-visible w-full`}>{familyName}</span>
+          <span className={`${sizeClass} font-bold truncate print:whitespace-normal print:overflow-visible w-full`}>{givenName}</span>
+        </div>
+      );
+    }
+
+    // スペースがない場合は折り返し表示
+    return (
+      <div className={`text-center break-all leading-tight ${colorClass} w-full px-1 print:overflow-visible`}>
+        <span className={`${sizeClass} font-bold print:whitespace-normal`}>{name}</span>
+      </div>
+    );
+  };
+
   // 配慮条件のチェック（警告・確認メッセージの生成）
   const getAlertMessages = () => {
     const alerts: { type: 'warning' | 'info'; text: string }[] = [];
@@ -1102,7 +1132,7 @@ const App: React.FC = () => {
                   onDragOver={handleDragOver}
                   onDrop={() => handleDropToSeat(index)}
                   className={`
-                    relative h-24 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-200 seat-border
+                    relative h-24 print:h-[5.25rem] rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-200 seat-border
                     ${seat.isVoid 
                       ? 'bg-transparent border-dashed border-slate-300 opacity-50 print:border-none print:opacity-0' 
                       : 'bg-white shadow-sm hover:shadow-md border-slate-200'}
@@ -1155,23 +1185,23 @@ const App: React.FC = () => {
                     <div
                       draggable
                       onDragStart={() => handleDragStartFromSeat(student.id, index)}
-                      className="w-full h-full flex flex-col items-center justify-center px-2 relative"
+                      className="w-full h-full flex flex-col items-center justify-center px-2 relative print:py-0.5"
                     >
                       {printMode === 'teacher' ? (
                         <>
                           {/* 出席番号とチェック欄 */}
-                          <div className="w-full flex justify-between items-center text-xs text-slate-400 font-mono mb-1 px-1">
+                          <div className="w-full flex justify-between items-center text-xs text-slate-400 font-mono mb-1 print:mb-0 px-1">
                             <span>{student.number}</span>
-                            <span className="border border-slate-300 rounded w-3.5 h-3.5 flex items-center justify-center text-[9px] bg-white font-sans text-transparent select-none">
+                            <span className="border border-slate-300 rounded w-3.5 h-3.5 print:w-3 print:h-3 flex items-center justify-center text-[9px] bg-white font-sans text-transparent select-none">
                               ✓
                             </span>
                           </div>
 
                           {/* 氏名 */}
-                          <span className="font-bold text-lg text-slate-700 line-clamp-1">{student.name}</span>
+                          {renderStudentName(student.name, false)}
                           
                           {/* 性別・身長 */}
-                          <div className="text-[10px] text-slate-400 flex gap-2 mt-1">
+                          <div className="text-[10px] print:text-[8px] text-slate-400 flex gap-2 mt-1 print:mt-0">
                             <span>{student.gender}</span>
                             <span>{student.height}cm</span>
                           </div>
@@ -1190,7 +1220,7 @@ const App: React.FC = () => {
                       ) : (
                         <>
                           {/* 掲示用：氏名のみ */}
-                          <span className="font-bold text-xl text-slate-800 line-clamp-1">{student.name}</span>
+                          {renderStudentName(student.name, true)}
                         </>
                       )}
                     </div>

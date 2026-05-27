@@ -1,6 +1,11 @@
 @import "tailwindcss";
 
 @media print {
+  @page {
+    size: A4 portrait;
+    margin: 8mm 10mm;
+  }
+
   /* 印刷時に余計な余白を取り除く */
   body {
     background-color: white !important;
