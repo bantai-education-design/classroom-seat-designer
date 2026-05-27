@@ -49,19 +49,58 @@ const parseCSVLine = (line: string): string[] => {
 // --- サンプルデータ生成 ---
 const generateMockStudents = (): Student[] => {
   const students: Student[] = [];
-  const familyNames = ['佐藤', '鈴木', '高橋', '田中', '伊藤', '渡辺', '山本', '中村', '小林', '加藤'];
-  const givenNamesM = ['大翔', '蓮', '樹', '湊', '朝陽', '陽翔', '悠真', '結翔', '蒼', '律'];
-  const givenNamesF = ['陽葵', '紬', '凛', '結菜', '芽依', '詩', '莉子', '結愛', 'ひまり', '結衣'];
+  
+  const familyNames = [
+    { kanji: '佐藤', kana: 'さとう' },
+    { kanji: '鈴木', kana: 'すずき' },
+    { kanji: '高橋', kana: 'たかはし' },
+    { kanji: '田中', kana: 'たなか' },
+    { kanji: '伊藤', kana: 'いとう' },
+    { kanji: '渡辺', kana: 'わたなべ' },
+    { kanji: '山本', kana: 'やまもと' },
+    { kanji: '中村', kana: 'なかむら' },
+    { kanji: '小林', kana: 'こばやし' },
+    { kanji: '加藤', kana: 'かとう' }
+  ];
+  
+  const givenNamesM = [
+    { kanji: '大翔', kana: 'ひろと' },
+    { kanji: '蓮', kana: 'れん' },
+    { kanji: '樹', kana: 'いつき' },
+    { kanji: '湊', kana: 'みなと' },
+    { kanji: '朝陽', kana: 'あさひ' },
+    { kanji: '陽翔', kana: 'はると' },
+    { kanji: '悠真', kana: 'ゆうま' },
+    { kanji: '結翔', kana: 'ゆいと' },
+    { kanji: '蒼', kana: 'あおい' },
+    { kanji: '律', kana: 'りつ' }
+  ];
+  
+  const givenNamesF = [
+    { kanji: '陽葵', kana: 'ひまり' },
+    { kanji: '紬', kana: 'つむぎ' },
+    { kanji: '凛', kana: 'りん' },
+    { kanji: '結菜', kana: 'ゆいな' },
+    { kanji: '芽依', kana: 'めい' },
+    { kanji: '詩', kana: 'うた' },
+    { kanji: '莉子', kana: 'りこ' },
+    { kanji: '結愛', kana: 'ゆあ' },
+    { kanji: 'ひまり', kana: 'ひまり' },
+    { kanji: '結衣', kana: 'ゆい' }
+  ];
 
   for (let i = 1; i <= 35; i++) {
     const isBoy = i % 2 !== 0;
-    const fName = familyNames[Math.floor(Math.random() * familyNames.length)];
-    const gName = isBoy ? givenNamesM[Math.floor(Math.random() * givenNamesM.length)] : givenNamesF[Math.floor(Math.random() * givenNamesF.length)];
+    const fNameObj = familyNames[Math.floor(Math.random() * familyNames.length)];
+    const gNameObj = isBoy 
+      ? givenNamesM[Math.floor(Math.random() * givenNamesM.length)] 
+      : givenNamesF[Math.floor(Math.random() * givenNamesF.length)];
+      
     students.push({
       id: `std_${i}`,
       number: i,
-      name: `${fName} ${gName}`,
-      kana: 'さ行', // 簡略化
+      name: `${fNameObj.kanji} ${gNameObj.kanji}`,
+      kana: `${fNameObj.kana} ${gNameObj.kana}`,
       gender: isBoy ? '男' : '女',
       height: Math.floor(Math.random() * 30) + 120, // 120cm ~ 150cm
       fixedSeat: null,
@@ -151,6 +190,9 @@ const App: React.FC = () => {
   const [pairPreferNear, setPairPreferNear] = useState(false);
   const [pairAvoidNear, setPairAvoidNear] = useState(false);
   const [pairGenderMixed, setPairGenderMixed] = useState(false);
+  const [nameDisplayMode, setNameDisplayMode] = useState<'kanji' | 'kana'>('kanji');
+  const [gradeName, setGradeName] = useState('');
+  const [className, setClassName] = useState('');
 
   // ペアモードの判定を関数化
   const isPairModeActive = () => {
@@ -764,7 +806,10 @@ const App: React.FC = () => {
       seatMode,
       pairPreferNear,
       pairAvoidNear,
-      pairGenderMixed
+      pairGenderMixed,
+      nameDisplayMode,
+      gradeName,
+      className
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -818,6 +863,9 @@ const App: React.FC = () => {
           setPairPreferNear(data.pairPreferNear !== undefined ? data.pairPreferNear : false);
           setPairAvoidNear(data.pairAvoidNear !== undefined ? data.pairAvoidNear : false);
           setPairGenderMixed(data.pairGenderMixed !== undefined ? data.pairGenderMixed : false);
+          setNameDisplayMode(data.nameDisplayMode !== undefined ? data.nameDisplayMode : 'kanji');
+          setGradeName(data.gradeName !== undefined ? data.gradeName : '');
+          setClassName(data.className !== undefined ? data.className : '');
         }
       } catch (error) {
         console.error("ファイルの読み込みに失敗しました", error);
@@ -843,32 +891,36 @@ const App: React.FC = () => {
     return seats.some(s => s.studentId === studentId);
   };
 
-  const renderStudentName = (name: string, isDisplayMode: boolean) => {
-    const parts = name.trim().split(/[\s　]+/);
+  const renderStudentName = (student: Student, isDisplayMode: boolean) => {
+    const displayName = (nameDisplayMode === 'kana' && student.kana && student.kana.trim() !== '')
+      ? student.kana
+      : student.name;
+      
+    const parts = displayName.trim().split(/[\s　]+/);
     
     // 掲示用は大きめ、教師用は標準サイズ
     const sizeClass = isDisplayMode 
-      ? "text-xl sm:text-2xl print:text-2xl" 
-      : "text-base sm:text-lg print:text-[13px] print:leading-none"; // 印刷時は少し小さくして1ページ収まりを良くする
+      ? "text-2xl sm:text-3xl print:text-4xl" 
+      : "text-lg sm:text-xl print:text-base print:leading-tight"; // 教師用も大きくし、印刷時も十分な可読性を確保
       
-    const colorClass = isDisplayMode ? "text-slate-800" : "text-slate-700";
+    const colorClass = isDisplayMode ? "text-slate-900" : "text-slate-700";
 
     // 姓と名がスペースで区切られている場合
     if (parts.length >= 2) {
       const familyName = parts[0];
       const givenName = parts.slice(1).join(' ');
       return (
-        <div className={`flex flex-col items-center justify-center text-center leading-tight ${colorClass} w-full overflow-hidden print:overflow-visible`}>
-          <span className={`${sizeClass} font-bold truncate print:whitespace-normal print:overflow-visible w-full`}>{familyName}</span>
-          <span className={`${sizeClass} font-bold truncate print:whitespace-normal print:overflow-visible w-full`}>{givenName}</span>
+        <div className={`flex flex-col items-center justify-center text-center leading-tight ${colorClass} w-full overflow-hidden print:overflow-visible my-auto`}>
+          <span className={`${sizeClass} font-extrabold truncate print:whitespace-normal print:overflow-visible w-full`}>{familyName}</span>
+          <span className={`${sizeClass} font-extrabold truncate print:whitespace-normal print:overflow-visible w-full`}>{givenName}</span>
         </div>
       );
     }
 
     // スペースがない場合は折り返し表示
     return (
-      <div className={`text-center break-all leading-tight ${colorClass} w-full px-1 print:overflow-visible`}>
-        <span className={`${sizeClass} font-bold print:whitespace-normal`}>{name}</span>
+      <div className={`text-center break-all leading-tight ${colorClass} w-full px-1 print:overflow-visible my-auto`}>
+        <span className={`${sizeClass} font-extrabold print:whitespace-normal`}>{displayName}</span>
       </div>
     );
   };
@@ -1021,8 +1073,12 @@ const App: React.FC = () => {
                />
              )}
              <div>
-               <h1 className="text-2xl font-bold text-slate-700">学級座席デザイナー v0.2</h1>
-               <p className="text-xs text-slate-500 mt-0.5">担任の判断を助ける、半自動の座席表作成ツール</p>
+               <h1 className="text-2xl font-bold text-slate-700">
+                 {gradeName || className ? `${gradeName}${className} 座席表` : '学級座席デザイナー v0.2'}
+               </h1>
+               <p className="text-xs text-slate-500 mt-0.5 print:hidden">
+                 {gradeName || className ? '学級座席デザイナー v0.2' : '担任の判断を助ける、半自動の座席表作成ツール'}
+               </p>
              </div>
            </div>
            <div className="text-sm text-slate-500 print:hidden mt-2 sm:mt-0">
@@ -1132,10 +1188,10 @@ const App: React.FC = () => {
                   onDragOver={handleDragOver}
                   onDrop={() => handleDropToSeat(index)}
                   className={`
-                    relative h-24 print:h-[5.25rem] rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-200 seat-border
+                    relative h-24 print:h-[5.75rem] rounded-xl border-2 flex flex-col items-center transition-all duration-200 seat-border
                     ${seat.isVoid 
-                      ? 'bg-transparent border-dashed border-slate-300 opacity-50 print:border-none print:opacity-0' 
-                      : 'bg-white shadow-sm hover:shadow-md border-slate-200'}
+                      ? 'bg-transparent border-dashed border-slate-300 opacity-50 print:border-none print:opacity-0 justify-center' 
+                      : 'bg-white shadow-sm hover:shadow-md border-slate-200 justify-between py-1 px-1.5'}
                     ${student ? 'cursor-move' : 'cursor-default'}
                     ${isFixed ? 'ring-2 ring-orange-400 border-orange-100 print:ring-0 print:border-slate-400' : ''}
                     ${pairStyleClass}
@@ -1185,12 +1241,12 @@ const App: React.FC = () => {
                     <div
                       draggable
                       onDragStart={() => handleDragStartFromSeat(student.id, index)}
-                      className="w-full h-full flex flex-col items-center justify-center px-2 relative print:py-0.5"
+                      className="w-full h-full flex flex-col items-center justify-between relative print:py-0.5"
                     >
                       {printMode === 'teacher' ? (
                         <>
                           {/* 出席番号とチェック欄 */}
-                          <div className="w-full flex justify-between items-center text-xs text-slate-400 font-mono mb-1 print:mb-0 px-1">
+                          <div className="w-full flex justify-between items-center text-xs text-slate-400 font-mono px-1">
                             <span>{student.number}</span>
                             <span className="border border-slate-300 rounded w-3.5 h-3.5 print:w-3 print:h-3 flex items-center justify-center text-[9px] bg-white font-sans text-transparent select-none">
                               ✓
@@ -1198,10 +1254,10 @@ const App: React.FC = () => {
                           </div>
 
                           {/* 氏名 */}
-                          {renderStudentName(student.name, false)}
+                          {renderStudentName(student, false)}
                           
                           {/* 性別・身長 */}
-                          <div className="text-[10px] print:text-[8px] text-slate-400 flex gap-2 mt-1 print:mt-0">
+                          <div className="text-[10px] print:text-[8px] text-slate-400 flex gap-2">
                             <span>{student.gender}</span>
                             <span>{student.height}cm</span>
                           </div>
@@ -1211,16 +1267,16 @@ const App: React.FC = () => {
                              <button 
                                 onClick={() => setFixedSeat(student.id, isFixed ? null : index)}
                                 title={isFixed ? "固定席を解除" : "この席に固定"}
-                                className={`text-[9px] px-1 py-0.5 rounded leading-none ${isFixed ? 'bg-orange-500 text-white' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`}
+                                className="text-[9px] px-1 py-0.5 rounded leading-none bg-slate-100 text-slate-400 hover:bg-slate-200 border border-slate-200"
                              >
-                               固定
+                               {isFixed ? "固定中" : "固定"}
                              </button>
                           </div>
                         </>
                       ) : (
                         <>
                           {/* 掲示用：氏名のみ */}
-                          {renderStudentName(student.name, true)}
+                          {renderStudentName(student, true)}
                         </>
                       )}
                     </div>
@@ -1298,8 +1354,35 @@ const App: React.FC = () => {
             <p className="text-xs text-blue-600 mt-2 opacity-80">※固定席に指定された児童は動きません。</p>
           </div>
 
-          {/* 座席設定セクション */}
+          {/* 学級情報セクション */}
           <div className="space-y-3">
+             <h3 className="font-bold text-slate-700 text-sm border-b pb-2">学級情報</h3>
+             <div className="grid grid-cols-2 gap-2 text-sm">
+               <div>
+                 <label className="block text-xs text-slate-500 mb-1">学年</label>
+                 <input
+                   type="text"
+                   value={gradeName}
+                   onChange={(e) => setGradeName(e.target.value)}
+                   placeholder="例: 1年"
+                   className="w-full p-2 rounded-lg border border-slate-200 focus:ring-1 focus:ring-blue-500 text-slate-700 bg-white"
+                 />
+               </div>
+               <div>
+                 <label className="block text-xs text-slate-500 mb-1">学級名</label>
+                 <input
+                   type="text"
+                   value={className}
+                   onChange={(e) => setClassName(e.target.value)}
+                   placeholder="例: 1組"
+                   className="w-full p-2 rounded-lg border border-slate-200 focus:ring-1 focus:ring-blue-500 text-slate-700 bg-white"
+                 />
+               </div>
+             </div>
+          </div>
+
+          {/* 座席設定セクション */}
+          <div className="space-y-3 pt-4 border-t border-slate-100">
              <h3 className="font-bold text-slate-700 text-sm border-b pb-2">座席の基本設定</h3>
              <div className="flex flex-col gap-2 text-sm text-slate-600">
                 <span className="text-slate-700 font-medium">座席形態</span>
@@ -1371,6 +1454,31 @@ const App: React.FC = () => {
           {/* 表示設定セクション */}
           <div className="space-y-3 pt-4 border-t border-slate-100">
              <h3 className="font-bold text-slate-700 text-sm border-b pb-2">表示設定</h3>
+             <div className="flex flex-col gap-2 text-sm text-slate-600 mb-3">
+                <span className="text-slate-700 font-medium">名前表示</span>
+                <label className="flex items-center gap-2 cursor-pointer">
+                   <input 
+                     type="radio" 
+                     name="nameDisplayMode" 
+                     value="kanji" 
+                     checked={nameDisplayMode === 'kanji'} 
+                     onChange={() => setNameDisplayMode('kanji')}
+                     className="text-blue-600 focus:ring-blue-500"
+                   />
+                   <span>漢字</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                   <input 
+                     type="radio" 
+                     name="nameDisplayMode" 
+                     value="kana" 
+                     checked={nameDisplayMode === 'kana'} 
+                     onChange={() => setNameDisplayMode('kana')}
+                     className="text-blue-600 focus:ring-blue-500"
+                   />
+                   <span>ひらがな</span>
+                </label>
+             </div>
              <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
                 <input 
                   type="checkbox" 
@@ -1379,7 +1487,7 @@ const App: React.FC = () => {
                   className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                 />
                 <span>9ブロック名を表示する</span>
-             </label>
+              </label>
           </div>
 
           {/* ツールアクション */}
