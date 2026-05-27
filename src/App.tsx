@@ -937,19 +937,19 @@ const App: React.FC = () => {
     let sizeClass = '';
     if (isDisplayMode) {
       if (charCount >= 10) {
-        sizeClass = "text-xl sm:text-2xl print:text-[1.65rem] print:leading-tight";
+        sizeClass = "text-xl sm:text-2xl print:text-[1.85rem] print:leading-tight";
       } else if (charCount >= 7) {
-        sizeClass = "text-2xl sm:text-3xl print:text-[2rem] print:leading-tight";
+        sizeClass = "text-2xl sm:text-3xl print:text-[2.3rem] print:leading-tight";
       } else {
-        sizeClass = "text-2xl sm:text-3xl print:text-[2.5rem] print:leading-none";
+        sizeClass = "text-2xl sm:text-3xl print:text-[2.9rem] print:leading-none";
       }
     } else {
       if (charCount >= 10) {
-        sizeClass = "text-base sm:text-lg print:text-[13px] print:leading-tight";
+        sizeClass = "text-base sm:text-lg print:text-[14px] print:leading-tight";
       } else if (charCount >= 7) {
-        sizeClass = "text-lg sm:text-xl print:text-[15px] print:leading-tight";
+        sizeClass = "text-lg sm:text-xl print:text-[16.5px] print:leading-tight";
       } else {
-        sizeClass = "text-lg sm:text-xl print:text-[17px] print:leading-tight";
+        sizeClass = "text-lg sm:text-xl print:text-[19px] print:leading-tight";
       }
     }
       
@@ -1159,12 +1159,12 @@ const App: React.FC = () => {
 
         <div className="flex-1 p-8 flex flex-col items-center">
           {/* 黒板エリア */}
-          <div className="w-3/4 max-w-2xl h-12 print:h-10 bg-green-700 rounded-lg shadow-inner flex items-center justify-center mb-8 print:mb-4 border-4 border-green-800 print:bg-green-800">
+          <div className="w-3/4 max-w-2xl h-12 print:h-10 bg-green-700 rounded-lg shadow-inner flex items-center justify-center mb-8 print:mb-3 border-4 border-green-800 print:bg-green-800">
             <span className="text-white font-bold tracking-widest opacity-80 print:text-xs">黒板</span>
           </div>
 
           {/* 教卓 */}
-          <div className="w-32 h-16 print:h-10 bg-amber-100 border-2 border-amber-300 rounded mb-12 print:mb-6 flex items-center justify-center shadow-sm print:bg-amber-50">
+          <div className="w-32 h-16 print:h-10 bg-amber-100 border-2 border-amber-300 rounded mb-12 print:mb-4 flex items-center justify-center shadow-sm print:bg-amber-50">
             <span className="text-amber-700 font-medium text-sm print:text-xs">教卓</span>
           </div>
 
@@ -1244,7 +1244,7 @@ const App: React.FC = () => {
                   onDragOver={handleDragOver}
                   onDrop={() => handleDropToSeat(index)}
                   className={`
-                    relative h-24 print:h-[6.5rem] rounded-xl border-2 flex flex-col items-center transition-all duration-200 seat-border
+                    relative h-24 print:h-[7.2rem] rounded-xl border-2 flex flex-col items-center transition-all duration-200 seat-border
                     ${seat.isVoid 
                       ? 'bg-transparent border-dashed border-slate-300 opacity-50 print:border-none print:opacity-0 justify-center' 
                       : 'bg-white shadow-sm hover:shadow-md border-slate-200 justify-between py-1 px-1.5'}

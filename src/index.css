@@ -3,7 +3,7 @@
 @media print {
   @page {
     size: A4 portrait;
-    margin: 8mm 10mm;
+    margin: 4mm 5mm;
   }
 
   /* 印刷時に余計な余白を取り除く */
