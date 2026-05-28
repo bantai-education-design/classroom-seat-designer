@@ -1,7 +1,7 @@
 {
   "name": "classroom-seat-designer",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.5.0",
   "type": "module",
   "main": "electron/main.cjs",
   "scripts": {
@@ -55,7 +55,7 @@
       "target": [
         "portable"
       ],
-      "artifactName": "${productName}_${version}.${ext}"
+      "artifactName": "${productName}-v${version}-portable.${ext}"
     }
   }
 }
