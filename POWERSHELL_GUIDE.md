@@ -120,7 +120,7 @@ npm run electron:pack
 Get-ChildItem -Path release
 
 # 4. 作成されたポータブル版アプリをPowerShellから直接起動してテストする
-.\release\学級座席デザイナー_0.0.0.exe
+.\release\学級座席デザイナー-v1.0.0-portable.exe
 ```
 
 > [!WARNING]
@@ -144,5 +144,32 @@ base: isElectron ? './' : '/classroom-seat-designer/',
 ```
 
 これにより、同一のソースコードからWeb公開版とWindowsアプリ版の両方を同時に維持・動作させることができます。
+
+---
+
+## 11. 配布ZIP作成後のリリース手順（v1.0.0など正式版のとき）
+
+バージョン（`package.json` の `version`）を更新し、`npm run electron:pack` で新しいexeを作成した後の、配布物の管理・公開手順です。
+
+```powershell
+# 1. package.json の version を更新（例: 1.0.0）した後、ビルド
+npm run build
+npm run electron:pack
+
+# 2. 作成された release/ 配下のexeを、保管用フォルダーへコピー
+#    （保管用フォルダーはGit管理対象外。バージョンごとにフォルダを分けて保管する）
+Copy-Item ".\release\学級座席デザイナー-v1.0.0-portable.exe" "C:\Users\User\Documents\アプリ\classroom-seat-designer\"
+
+# 3. 保管用フォルダー側で配布用ZIPを作成（exe + README_最初にお読みください.txt + MANUAL.md）
+#    ZIPの中身は手作業またはスクリプトでまとめてください
+```
+
+> [!WARNING]
+> **release/、dist/、node_modules/、exeファイル、zipファイルは、いずれもGitHubにコミット・プッシュしないでください。**
+> これらはすべて `.gitignore` の対象、またはビルド生成物です。Gitにコミットしてよいのは `package.json`・`package-lock.json`・`README.md`・`MANUAL.md`・`POWERSHELL_GUIDE.md` などの設定・ドキュメントファイルのみです。
+
+> [!NOTE]
+> 配布用のexe・ZIPファイルは `C:\Users\User\Documents\アプリ\classroom-seat-designer\`（保管用フォルダー）で管理します。GitHubリポジトリ本体には含めません。
+> GitHub Releases への登録（タグ作成・ZIP添付・公開）は、このガイドの範囲外の**手動作業**です。準備ができたら GitHub の「Releases」画面から手動でタグ（例: `v1.0.0`）を作成し、保管用フォルダーのZIPを添付して公開してください。
 
 ---
